@@ -1,0 +1,18 @@
+{
+  "name": "formattedinput",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.tsx",
+  "scripts": {
+    "test": "true"
+  },
+  "author": "Niobos <niobos@dest-unreach.be>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/niobos/react-formattedInput"
+  },
+  "dependencies": {
+    "react": "^17.0.2"
+  }
+}

@@ -14,7 +14,7 @@ export interface FormattedInputProps<T> {
     classNameFunc?: (v: T) => string
 }
 
-export default function Index<T>(props: FormattedInputProps<T>) {
+export default function FormattedInput<T>(props: FormattedInputProps<T>) {
     const [text, setText] = useState<string|null>(null);
 
     const styleFunc = (props.styleFunc != null) ? props.styleFunc : () => {return {}};

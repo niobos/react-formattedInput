@@ -49,7 +49,7 @@ export default function FormattedInput<T>(props: FormattedInputProps<T>) {
             if(props.onBlur != null) props.onBlur();
         }}
         style={{...props.style, ...styleFunc(props.value)}}
-        className={props.className + ' ' + classNameFunc(props.value)}
+        className={(props.className || '') + ' ' + classNameFunc(props.value)}
     />;
 }
 
@@ -86,6 +86,30 @@ export function formatValueFloat(
         + (decimals ? decimalPoint + (parseFloat(s) - intPart).toFixed(decimals)
             .slice(2).replace(/(\d{3})(?=\d)/g, '$1' + thousandSep) : '');
 }
+type FloatInputProps = {
+    decimals?: number,
+    thousandSep?: string,
+    decimalPoint?: string,
+    explicitPlus?: boolean,
+    parseIgnoreChars?: RegExp,
+    parseDecimalPoint?: RegExp,
+};
+export function FloatInput(props: Omit<FormattedInputProps<number>, "formatValue" | "parseString"> & FloatInputProps) {
+    const formatedInputProps = Object.assign({}, props, {
+        formatValue: v => formatValueFloat(v, {
+            decimals: props.decimals,
+            thousandSep: props.thousandSep,
+            decimalPoint: props.decimalPoint,
+            explicitPlus: props.explicitPlus,
+        }),
+        parseString: s => parseValueFloat(s, {
+            ignoreChars: props.parseIgnoreChars,
+            decimalPoint: props.parseDecimalPoint,
+        }),
+        className: (props.className || '') + ' FloatInput',
+    });
+    return FormattedInput(formatedInputProps);
+}
 
 export function parseValuePercent(
     s: string
@@ -101,6 +125,19 @@ export function formatValuePercent(
     return formatValueFloat(value * 100, {
         decimals,
     });
+}
+type PercentInputProps = {
+    decimals?: number,
+}
+export function PercentInput(props: Omit<FormattedInputProps<number>, "formatValue" | "parseString"> & PercentInputProps) {
+    const formatedInputProps = Object.assign({}, props, {
+        formatValue: v => formatValuePercent(v, {
+            decimals: props.decimals,
+        }),
+        parseString: parseValuePercent,
+        className: (props.className || '') + ' PercentInput',
+    });
+    return FormattedInput(formatedInputProps);
 }
 
 export function parseValueSi(
@@ -185,4 +222,20 @@ export function formatValueSi(
         return signPrefix + sig.toFixed(0) + ' ' + PREFIXES[exponent];
     }
     return signPrefix + parseFloat(sig.toPrecision(significantDigits)) + ' ' + PREFIXES[exponent];
+}
+type SiInputProps = {
+    significantDigits?: number,
+    emptyValue?: number,
+}
+export function SiInput(props: Omit<FormattedInputProps<number>, "formatValue" | "parseString"> & SiInputProps) {
+    const formatedInputProps = Object.assign({}, props, {
+        formatValue: v => formatValueSi(v, {
+            significantDigits: props.significantDigits,
+        }),
+        parseString: s => parseValueSi(s, {
+            emptyValue: props.emptyValue,
+        }),
+        className: (props.className || '') + ' SiInput',
+    });
+    return FormattedInput(formatedInputProps);
 }

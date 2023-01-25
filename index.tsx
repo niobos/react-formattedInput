@@ -149,6 +149,7 @@ export function parseValueSi(
         = {},
 ): number | undefined {
     if(s == null || s === "") return emptyValue;
+    if(s === "∞") return Infinity;
 
     const re = /^\s*(?<sign>[+-]?)(?<int_part>[0-9 ]*)(?:[.,](?<frac_part>[0-9 ]*))?([eE](?<exp_part>[+-]?\d+))? *(?<prefix>[EPTGMkmuµnpfa])?\s*$/
     const match = re.exec(s);
@@ -207,6 +208,7 @@ export function formatValueSi(
     };
     if(value === null) return "";
     if(value === 0) return "0";
+    if(value === Infinity) return "∞";
     let sig = Math.abs(value);  // significand
     let exponent = 0;
     while (sig >= 1000 && exponent < 24) {

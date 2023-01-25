@@ -6,6 +6,8 @@ export interface FormattedInputProps<T> {
     formatValue?: (v: T) => string
     parseString?: (string) => T
     onChange?: (v: T) => void
+    onFocus?: () => void
+    onBlur?: () => void
     placeholder?: string
     disabled?: boolean
     style?: object
@@ -38,8 +40,14 @@ export default function FormattedInput<T>(props: FormattedInputProps<T>) {
                 props.onChange(parseString(e.target.value));
             }
         }}
-        onFocus={() => setText(inputValue)}
-        onBlur={() => setText(null)}
+        onFocus={() => {
+            setText(inputValue);
+            if(props.onFocus != null) props.onFocus();
+        }}
+        onBlur={() => {
+            setText(null);
+            if(props.onBlur != null) props.onBlur();
+        }}
         style={{...props.style, ...styleFunc(props.value)}}
         className={props.className + ' ' + classNameFunc(props.value)}
     />;

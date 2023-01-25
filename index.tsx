@@ -102,3 +102,87 @@ export function formatValuePercent(
         decimals,
     });
 }
+
+export function parseValueSi(
+    s: string,
+    {emptyValue = NaN}:
+        {emptyValue?: number}
+        = {},
+): number | undefined {
+    if(s == null || s === "") return emptyValue;
+
+    const re = /^\s*(?<sign>[+-]?)(?<int_part>[0-9 ]*)(?:[.,](?<frac_part>[0-9 ]*))?([eE](?<exp_part>[+-]?\d+))? *(?<prefix>[EPTGMkmuµnpfa])?\s*$/
+    const match = re.exec(s);
+    if(match === null) return undefined;
+
+    const sign_s = match.groups['sign'];
+    let int_part_s = match.groups['int_part'] || "0";
+    let frac_part_s = match.groups['frac_part'] || "0";
+    let exp_part_s = match.groups['exp_part'] || "0";
+    const prefix_s = match.groups['prefix'] || "";
+
+    int_part_s = int_part_s.replace(' ', '');
+    frac_part_s = frac_part_s.replace(' ', '');
+    exp_part_s = exp_part_s.replace(' ', '');
+
+    const sign = (sign_s === '-' ? -1 : 1);
+    const int_part = parseInt(int_part_s);
+    const frac_part = parseFloat("0." + frac_part_s);
+    let exp_part = parseInt(exp_part_s);
+    if(prefix_s === "") {
+        // Do nothing
+    } else {
+        //         0123456789012
+        const i = "EPTGMkmuµnpfa".indexOf(prefix_s);
+        if(i <= 5) exp_part += 3*(6-i);
+        else exp_part -= 3*(i-5);
+    }
+
+    return sign*(int_part + frac_part)*Math.pow(10, exp_part);
+}
+export function formatValueSi(
+    value: number,
+    {significantDigits = 3}:
+        {significantDigits?: number}
+        = {}
+): string {
+    // Based on https://github.com/ThomWright/format-si-prefix/blob/master/src/index.js MIT licensed
+    const PREFIXES = {
+        '24': 'Y',
+        '21': 'Z',
+        '18': 'E',
+        '15': 'P',
+        '12': 'T',
+        '9': 'G',
+        '6': 'M',
+        '3': 'k',
+        '0': '',
+        '-3': 'm',
+        '-6': 'µ',
+        '-9': 'n',
+        '-12': 'p',
+        '-15': 'f',
+        '-18': 'a',
+        '-21': 'z',
+        '-24': 'y'
+    };
+    if(value === null) return "";
+    if(value === 0) return "0";
+    let sig = Math.abs(value);  // significand
+    let exponent = 0;
+    while (sig >= 1000 && exponent < 24) {
+        sig /= 1000;
+        exponent += 3;
+    }
+    while (sig < 1 && exponent > -24) {
+        sig *= 1000;
+        exponent -= 3;
+    }
+
+    const signPrefix = value < 0 ? '-' : '';
+    if (sig > 1000) { // exponent == 24
+        // significand can be arbitrarily long
+        return signPrefix + sig.toFixed(0) + ' ' + PREFIXES[exponent];
+    }
+    return signPrefix + parseFloat(sig.toPrecision(significantDigits)) + ' ' + PREFIXES[exponent];
+}

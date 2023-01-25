@@ -10,6 +10,7 @@ export interface FormattedInputProps<T> {
     onBlur?: () => void
     placeholder?: string
     disabled?: boolean
+    readOnly?: boolean
     style?: object
     styleFunc?: (v: T) => object
     className?: string
@@ -40,6 +41,7 @@ export default function FormattedInput<T>(props: FormattedInputProps<T>) {
                 props.onChange(parseString(e.target.value));
             }
         }}
+        readOnly={props.readOnly}
         onFocus={() => {
             setText(inputValue);
             if(props.onFocus != null) props.onFocus();
